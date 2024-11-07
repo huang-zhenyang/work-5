@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <title>寻宝游戏</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        font-family: "PingFangSC-Regular", "微软雅黑", sans-serif;
+        height: 100%;
+        background-color: #f0f0f0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+      }
+      h1 {
+        font-size: 24px;
+        letter-spacing: -1px;
+        color: #333;
+        margin: 20px 0;
+      }
+      #controlPanel {
+        margin-top: 20px;
+      }
+      #controlPanel button {
+        padding: 5px 10px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      #scoreDisplay {
+        margin-top: 20px;
+        color: #333;
+      }
+    </style>
+</head>
+<body>
+<h1>寻宝游戏</h1>
+<div id="controlPanel">
+    <button id="startButton">开始寻宝</button>
+</div>
+<div id="scoreDisplay"></div> <!-- 分数显示容器 -->
+<script>
+  const startButton = document.getElementById('startButton');
+  const scoreDisplay = document.getElementById('scoreDisplay');
+
+  class TreasureMap {
+      static getInitialClue() {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve("在古老的图书馆里找到了第一个线索...");
+          }, 1000);
+        });
+      }
+  
+      static decodeAncientScript(clue) {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve("解码成功!宝藏在一座行政大楼中...");
+          }, 1500);
+        });
+      }
+  
+      static searchTemple() {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            const random = Math.random() < 0.5;
+            if (random) {
+              reject("寻宝失败!你掉进陷阱啦！被牢赛肘击致死!");
+            } else {
+              resolve("你找到了一个保险柜...");
+            }
+          }, 2000);
+        });
+      }
+  
+      static openTreasureBox() {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve("恭喜!你找到了传说中的宝藏!");
+          }, 1000);
+        });
+      }
+  }
+
+  // 设置密码提示和正确密码
+  const passwordHint = "密码是摩斯密码，| 是分隔符： -----  |  --...  |  ..---  |  .----";
+  const correctPassword = "0721";
+
+  async function findTreasureWithAsyncAwait() {
+    try {
+        displayEvent(await TreasureMap.getInitialClue());
+        displayEvent(await TreasureMap.decodeAncientScript());
+        
+        // 在此等待 searchTemple 方法执行结果
+        let result = await TreasureMap.searchTemple();
+        if (result) {
+            displayEvent(result);  // 显示寻找结果
+            
+            // 如果找到了保险柜
+            if (result === "你找到了一个保险柜...") {
+                const password = prompt("请输入解锁密码：" + passwordHint, "");
+                if (password === correctPassword) {
+                    displayEvent(await TreasureMap.openTreasureBox());
+                } else {
+                    displayEvent("密码错误，你惹出的动静引来了牢赛，你被肘飞了");
+                }
+            }
+        }
+    } catch (error) {
+        displayEvent(error); // 如果发生错误则显示错误信息
+    } finally {
+        startButton.disabled = false; // 重新启用按钮
+    }
+}
+
+  function displayEvent(message) {
+    scoreDisplay.textContent = message; // 显示当前事件
+  }
+
+  startButton.addEventListener('click', function() {
+    if (!startButton.disabled) {
+      scoreDisplay.textContent = ''; // 清空分数显示
+      startButton.disabled = true; // 禁用按钮
+      findTreasureWithAsyncAwait();
+    }
+  });
+</script>
+</body>
+</html>
